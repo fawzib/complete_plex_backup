@@ -2,6 +2,7 @@
 
 # Define variables
 BACKUP_FOLDER="/mnt/user/appdata/binhex-plexpass/Plex Media Server"
+#BACKUP_FOLDER=/mnt/user/Downloads/youtube
 REMOTE_SERVER="google"
 REMOTE_DESTINATION="plex_app_data_zip"
 TMP_FOLDER="/tmp/plex_backup"
@@ -12,11 +13,11 @@ SPLIT_SIZE="10G"
 ERROR_LOG="$TMP_FOLDER/error_log.txt"
 DOCKER_CONTAINERS=("ollama" "open-webui" "Viseron" "CamViewerPlus" "chromadb" "faster-whisper" "whisper-asr-webservice" "openvscode-server")
 # Create a list of folders to ignore
-IGNORE_FOLDERS=("Logs" "Crash Reports" "Cache" "Codecs" "Diagnostics" "Drivers" "Updates")
+IGNORE_FOLDERS=("Logs" "Crash Reports" "Cache" "Codecs" "Diagnostics" "Drivers" "Updates" "Media")
 LOCK_FILE="$TMP_FOLDER/plex.lock"
 FLOCK_MAX_RETRIES=50
 FLOCK_RETRY_INTERVAL=10
-
+COMPRESSION_LEVEL=7
 
 # Function to remove old backups
 remove_old_backups() {
@@ -114,7 +115,7 @@ zip_and_upload() {
     fi
 
     # Start the zip process in the background
-	command="zip -r -0 -q -s $SPLIT_SIZE \"$TMP_FOLDER/$zip_base_name.zip\" \"$folder_to_backup\"/* 2>\"$ERROR_LOG\""
+	command="zip -r -$COMPRESSION_LEVEL -q -s $SPLIT_SIZE \"$TMP_FOLDER/$zip_base_name.zip\" \"$folder_to_backup\"/* 2>\"$ERROR_LOG\""
 	run_with_lock "$command" &
     #(zip -r -0 -q -s $SPLIT_SIZE "$TMP_FOLDER/$zip_base_name.zip" "$folder_to_backup"/* 2> "$ERROR_LOG") &
 	zip_pid=$!
@@ -186,7 +187,7 @@ stop_containers
 echo "Creating backup for non-directory files..."
 zip_base_name="non_directory_files_backup"
 
-find "$BACKUP_FOLDER" -maxdepth 1 -type f | zip -r -0 -q "$TMP_FOLDER/$zip_base_name.zip" -@ 2>"$ERROR_LOG"
+find "$BACKUP_FOLDER" -maxdepth 1 -type f | zip -r -"$COMPRESSION_LEVEL" -q "$TMP_FOLDER/$zip_base_name.zip" -@ 2>"$ERROR_LOG"
 #command="find \"$BACKUP_FOLDER\" -maxdepth 1 -type f | zip -r -0 -q \"$TMP_FOLDER/$zip_base_name.zip\" -@ 2>\"$ERROR_LOG\""
 #run_with_lock "$command" false
 
@@ -217,7 +218,6 @@ for ITEM in "$BACKUP_FOLDER"/*; do
     fi
 done
 
-echo "Removing lock"
 rm $LOCK_FILE
 # Remove old backups, keeping only the last 3
 remove_old_backups "$REMOTE_DESTINATION" "$RETENTION_COUNT"
