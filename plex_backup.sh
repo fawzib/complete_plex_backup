@@ -17,6 +17,7 @@ LOCK_FILE="$TMP_FOLDER/plex.lock"
 FLOCK_MAX_RETRIES=50
 FLOCK_RETRY_INTERVAL=10
 
+
 # Function to remove old backups
 remove_old_backups() {
     BACKUP_PATH=$1
@@ -33,7 +34,6 @@ remove_old_backups() {
 # Function to acquire lock and run a command
 run_with_lock() {
   local command="$1"
-  local background="$2"
   local retries=0
 
   #echo "Starting run_with_lock with command: $command, background: $background"
@@ -46,15 +46,8 @@ run_with_lock() {
         #echo "Lock acquired, executing command: $command"
         
         # Lock acquired, execute the command
-        if [ "$background" == "true" ]; then
-          eval "$command" &
-          pid=$!
-          wait $pid
-          command_status=$?
-        else
-          eval "$command"
-          command_status=$?
-        fi
+        eval "$command"
+        command_status=$?
 
         if [ $command_status -ne 0 ]; then
           echo "Command failed with status $command_status."
@@ -122,10 +115,10 @@ zip_and_upload() {
 
     # Start the zip process in the background
 	command="zip -r -0 -q -s $SPLIT_SIZE \"$TMP_FOLDER/$zip_base_name.zip\" \"$folder_to_backup\"/* 2>\"$ERROR_LOG\""
-	run_with_lock "$command" true
+	run_with_lock "$command" &
     #(zip -r -0 -q -s $SPLIT_SIZE "$TMP_FOLDER/$zip_base_name.zip" "$folder_to_backup"/* 2> "$ERROR_LOG") &
 	zip_pid=$!
-	
+
     # Loop to monitor the zip process and upload new files
     while kill -0 "$zip_pid" 2>/dev/null; do
 			
