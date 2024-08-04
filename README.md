@@ -3,11 +3,11 @@ Fully backup your plex to the cloud. No script online was suitable for my case s
 
 Features:
 - Backups up the whole Plex folder and not just the database
-- Zips each directory by it self instead everything at once
-  -  Splits large zip files
+- Zips each directory top directory at a time instead everything at once
+  -  Splits large zip files 
 - Support of skipping certain directories (ex: Logs)
-- It locks the directory to avoid data corruption
-  - Run the backup while plex is still running!
+- It locks the plex directory to avoid data corruption
+  - Run the backup while Plex is still running!
 - Backups to both local and cloud using rclone
-- It starts uploading to the cloud during the zip process to save space
+- It starts uploading to the cloud during the zip process to quickly free disk space and reduce backup time
 - Auto stops and starts predefined docker containers to free resources 
