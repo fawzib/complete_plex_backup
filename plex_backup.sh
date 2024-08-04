@@ -13,7 +13,7 @@ SPLIT_SIZE="10G"
 ERROR_LOG="$TMP_FOLDER/error_log.txt"
 DOCKER_CONTAINERS=("ollama" "open-webui" "Viseron" "CamViewerPlus" "chromadb" "faster-whisper" "whisper-asr-webservice" "openvscode-server")
 # Create a list of folders to ignore
-IGNORE_FOLDERS=("Logs" "Crash Reports" "Cache" "Codecs" "Diagnostics" "Drivers" "Updates" "Media")
+IGNORE_FOLDERS=("Logs" "Crash Reports" "Cache" "Codecs" "Diagnostics" "Drivers" "Updates")
 LOCK_FILE="$TMP_FOLDER/plex.lock"
 FLOCK_MAX_RETRIES=50
 FLOCK_RETRY_INTERVAL=10
